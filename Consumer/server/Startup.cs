@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Server.Hubs;
+using Server.Services;
 
 namespace Server {
     public class Startup {
@@ -14,8 +15,20 @@ namespace Server {
         public IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services) {
-            services.AddControllers();
+
+            services.AddCors(options => options.AddPolicy(
+                "CorsPolicy", builder => builder.SetIsOriginAllowed(_ => true)
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials()
+                )
+            );
+
             services.AddSignalR();
+
+            services.AddSingleton<EventService>();
+
+            services.AddControllers();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
@@ -24,12 +37,13 @@ namespace Server {
             }
 
             app.UseHttpsRedirection();
+            app.UseCors("CorsPolicy");
             app.UseRouting();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers();
-                endpoints.MapHub<EventHub>("/chathub");
+                endpoints.MapHub<EventHub>("/hub");
             });
         }
     }

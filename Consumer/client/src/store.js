@@ -1,21 +1,17 @@
-import { createStore } from 'redux'
+import { createStore } from 'redux';
 
-const INITIAL_STATE = {
-	data: [{
-		title: 'Venicyus',
-		description: 'testando 1',
-		date: '2020-06-03T08:00:00.000'
-	}, {
-		title: 'Geovane',
-		description: 'testando 2',
-		date: '2020-06-02T08:00:00.000'
-	}]
-};
+const INITIAL_STATE = { data: [] };
 
 function events(state = INITIAL_STATE, action) {
 	switch (action.type) {
-		case 'ADD_EVENTS':
-			return { ...state, data: [...state.data, action.title] };
+		case 'GET':
+			return { ...state, data: [...action.event] };
+		case 'ADD':
+			return { ...state, data: [...state.data, action.event] };
+		case 'EDIT':
+			return { ...state, data: [...state.data.filter(d => d.id !== action.event.id), action.event] };
+		case 'REMOVE':
+			return { ...state, data: [...state.data.filter(d => d.id !== action.event.id)] };
 		default:
 			return state;
 	}
